@@ -51,23 +51,19 @@ function time_error(eq, dt_axis;err_type="weak_error")
 			weak_error = abs(X_0*exp(a*fin_t) - norm*sum(EM_end))
 
 		elseif eq == "ABM"
-			for m in 1:M
-				dBt, Bt = wsc.get_dBt(dt, time_axis)
-				X_aprox = wsc.EM_ABM_aprox(dBt, Bt, a, b, dt, X_0, time_axis)
-				X_true = wsc.ABM_sol(dBt, Bt,a, b, dt, X_0, time_axis)
-				#@show X_aprox[1], X_true[1]
-
-				push!(EM_end, X_aprox[end])
+			X_temp = X_0 * ones(M)
+			for t in eachindex(time_axis)
+				Winc = sqrt(dt) * randn(M)
+				X_temp = X_temp + a*dt + b*Winc
 			end
-
-			weak_error = abs( ((a*fin_t)+X_0) - norm*sum(EM_end) )
+			weak_error = abs( ((a*fin_t)+X_0) - mean(X_temp) )
 		end
 
 		push!(weak_axis, weak_error)
 
-		Plots.plot(X_true, label="an_sol")
-		Plots.plot!(X_aprox, label="em_apr")
-		Plots.png(path*"$(dt).png")
+		#Plots.plot(X_true, label="an_sol")
+		#Plots.plot!(X_aprox, label="em_apr")
+		#Plots.png(path*"$(dt).png")
 	end
 	fit_l, title = wsc.f_line(weak_axis, dt_axis, "linreg")
 	wsc.p_err(path,dt_axis,weak_axis,fit_l,err_type,title,true)
@@ -86,5 +82,5 @@ X_0 = 1
 w_dt_axis = [1/(2^10),1/(2^9),1/(2^8),1/(2^7),1/(2^6)]
 
 
-@time time_error("ABM", w_dt_axis, err_type="weak_error")			# "ABM", "GBM"
-#time_error("GBM", w_dt_axis, err_type="weak_error")
+@time time_error("ABM", w_dt_axis, err_type="weak_error")	# "ABM", "GBM"
+#@time time_error("GBM", w_dt_axis, err_type="weak_error")
