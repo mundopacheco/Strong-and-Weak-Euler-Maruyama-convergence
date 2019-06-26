@@ -1,0 +1,10 @@
+*.jl.cov
+*.jl.*.cov
+*.jl.mem
+/notebooks/*.jl
+.ipynb_checkpoints
+*.png
+*.csv
+*.gif
+*.DS_Store
+*.svg
